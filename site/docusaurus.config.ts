@@ -1,6 +1,7 @@
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
-import { themes as prismThemes } from 'prism-react-renderer';
+import { colorationClaire, colorationSombre } from './src/coloration_syntaxique';
+import injecterExtraits from './src/remark/injecter_extraits';
 
 const config: Config = {
   title: 'Atlas des données',
@@ -36,6 +37,9 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          // Injecte le code depuis extraits/. Un fichier absent ou des marqueurs
+          // manquants font echouer la construction.
+          remarkPlugins: [injecterExtraits],
           editUrl: 'https://github.com/maxime2476/atlas-donnees/tree/main/site/',
         },
         // Le blog ne sert pas ce projet : le contenu est organisé par concept.
@@ -98,8 +102,10 @@ const config: Config = {
       copyright: `Maxime Gourguechon, ${new Date().getFullYear()}. Code sous licence MIT, contenus sous licence CC BY 4.0.`,
     },
     prism: {
-      theme: prismThemes.github,
-      darkTheme: prismThemes.vsDark,
+      // Themes derives de la palette du site, contrastes calcules. Voir
+      // src/coloration_syntaxique.ts et la fiche 004.
+      theme: colorationClaire,
+      darkTheme: colorationSombre,
       // java doit preceder scala : la definition Prism de Scala etend celle de
       // Java, et la construction echoue si Java n'est pas charge avant.
       additionalLanguages: ['r', 'julia', 'java', 'scala', 'sql', 'bash'],

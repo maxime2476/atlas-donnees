@@ -19,7 +19,12 @@ const CONCEPTS: Concept[] = [
   { dossier: 'lire_un_fichier', titre: 'Lire un fichier', jeu: 'Manchots', disponibles: [] },
   { dossier: 'inspecter_un_tableau', titre: 'Inspecter un tableau', jeu: 'Manchots', disponibles: [] },
   { dossier: 'selectionner_colonnes', titre: 'Sélectionner des colonnes', jeu: 'Manchots', disponibles: [] },
-  { dossier: 'filtrer_lignes', titre: 'Filtrer des lignes', jeu: 'Manchots', disponibles: [] },
+  {
+    dossier: 'filtrer_lignes',
+    titre: 'Filtrer des lignes',
+    jeu: 'Manchots',
+    disponibles: ['Python', 'SQL', 'R'],
+  },
   { dossier: 'trier_lignes', titre: 'Trier des lignes', jeu: 'Manchots', disponibles: [] },
   { dossier: 'creer_colonne', titre: 'Créer une colonne', jeu: 'Open Food Facts', disponibles: [] },
   { dossier: 'renommer_colonnes', titre: 'Renommer des colonnes', jeu: 'Open Food Facts', disponibles: [] },
@@ -69,7 +74,14 @@ function TableauConcepts(): ReactNode {
       <tbody>
         {CONCEPTS.map((concept) => (
           <tr key={concept.dossier}>
-            <th scope="row" className={styles.nomConcept}>{concept.titre}</th>
+            <th scope="row" className={styles.nomConcept}>
+              {/* Un concept sans aucun extrait n'a pas encore de page a lier. */}
+              {concept.disponibles.length > 0 ? (
+                <Link to={`/docs/manipulation/${concept.dossier}`}>{concept.titre}</Link>
+              ) : (
+                concept.titre
+              )}
+            </th>
             <td className={styles.jeu}>{concept.jeu}</td>
             {LANGAGES.map((langage) => (
               <CaseDisponibilite

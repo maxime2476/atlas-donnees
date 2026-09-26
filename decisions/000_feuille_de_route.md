@@ -3,7 +3,7 @@
 Document de travail. Il fixe l'ordre des étapes de construction du site et les
 questions à trancher à chacune. Les règles permanentes sont dans `CLAUDE.md`.
 
-État d'avancement : **étape 4 terminée. Prochaine étape : 5.**
+État d'avancement : **étape 6 écrite, en attente du premier envoi. Prochaine étape : 7.**
 
 ---
 
@@ -212,19 +212,23 @@ Environ 3 à 4 commits sur l'ensemble du projet, pas un par étape :
 
 ## Points ouverts
 
-- **Logo.** Un traitement pixel du nom en Silkscreen suffit peut-être, sans marque
-  dessinée. À trancher à l'étape 3.
-- **Liste des 12 concepts.** Provisoire jusqu'à l'étape 5.
-- **Échantillonnage des données.** La réduction d'Open Food Facts et des fichiers ONISR
-  à moins de 5 Mo doit être scriptée et reproductible. À traiter à l'étape 4.
+- **Échantillonnage d'Open Food Facts et des fichiers ONISR.** Doit être scripté et
+  reproductible, chaque fichier sous 5 Mo. L'étape 4 n'a traité que les manchots, donc
+  ce travail arrive à l'étape 9, quand les concepts 6 à 12 seront écrits. L'export
+  complet d'Open Food Facts pesant plusieurs gigaoctets, il faudra passer par son API
+  plutôt que par un téléchargement intégral.
 - **Version de Python du projet.** `pyproject.toml` exige 3.12 ou plus, et `uv` a retenu
   3.12.13, plus proche de ce qu'auront les élèves que le 3.14.4 du poste. À confirmer à
   l'étape 7.
+- **Cache des paquets R en CI.** Sans `renv`, `readr` et `dplyr` se réinstallent à chaque
+  exécution du job R. Les binaires RSPM limitent le coût à environ une minute. Le cache
+  correct viendra avec `renv`, à l'étape 7.
 - **21 vulnérabilités npm**, dont une de niveau élevé, toutes héritées de l'arbre de
   dépendances de Docusaurus 3.10.2. Aucune ne vient du paquet d'icônes. `npm audit fix
   --force` casserait l'installation. À examiner à l'étape 7.
-- **Thème de coloration syntaxique** encore celui de Docusaurus, donc hors palette.
-  À traiter à l'étape 5 avec les onglets.
+- **Rechargement à chaud.** En mode `npm start`, modifier un extrait ne rafraîchit pas
+  la page, puisque le fichier MDX n'a pas changé. Un `npm run build` complet reflète
+  bien la modification, ce qui a été vérifié. À améliorer si la gêne se confirme.
 
 ---
 
@@ -273,13 +277,17 @@ automatisée doit charger nvm elle-même.
 | Public | BTS, BUT, licence et master. Niveau de départ supposé : débutant complet en programmation. |
 | Licences | Code sous MIT, contenus sous CC BY 4.0. Titulaire : Maxime Gourguechon. |
 | Jeux de données | Trois : Palmer Penguins, Open Food Facts, accidents ONISR. Voir `005_jeux_de_donnees.md`. |
-| Liste des 12 concepts | **Provisoire.** Arrêtée après l'étape 5, une fois une page réelle visible. |
+| Liste des 12 concepts | Provisoire à ce stade. **Arrêtée le 26 septembre 2026**, après examen de la page de `filtrer_lignes`. |
 | Direction artistique | Terminal rétro, univers pixel, deux modes. Voir `004_direction_artistique.md`. |
 
 Fiches produites : `001_choix_du_framework.md`, `002_langages_du_mvp.md`,
 `003_strategie_de_test.md`, `004_direction_artistique.md`, `005_jeux_de_donnees.md`.
 
-## Liste provisoire des 12 concepts du chapitre « manipulation »
+## Les 12 concepts du chapitre « manipulation »
+
+**Liste arrêtée le 26 septembre 2026**, après examen de la page de `filtrer_lignes`. Le
+plan en sept sections a été validé en même temps. Ce tableau fait foi : c'est lui qui
+fixe le programme de l'étape 9.
 
 L'ordre suit le déroulement d'un traitement réel, du fichier brut au résultat agrégé.
 
@@ -347,7 +355,66 @@ Rappel opérationnel, pour ne pas avoir à relire la fiche 003 à chaque ajout.
 - Les marqueurs `affichage:debut` et `affichage:fin` délimitent la partie montrée sur le
   site. L'écriture du CSV reste en dehors.
 
-## Reste à faire avant l'étape 5
+## Décisions prises à l'étape 5
+
+| Sujet | Décision |
+|---|---|
+| Injection du code | Plugin remark maison sur les marqueurs d'affichage, aucune dépendance ajoutée. `remark-code-import` écarté : non maintenu depuis juin 2023 et en désaccord de version avec `unified@11`. |
+| Onglets | Python, SQL, R. Python par défaut. `groupId="langage"` et `queryString`. |
+| Plan des pages | Sept sections obligatoires. Voir le modèle dans `CONTRIBUTING.md`. |
+| Coloration syntaxique | Thèmes dérivés de la palette, définis en TypeScript. Voir la fiche 004. |
+
+## Pièges rencontrés à l'étape 5
+
+1. **`prism-react-renderer` applique son thème en styles inline**, qui l'emportent sur
+   toute règle CSS. Une coloration syntaxique ne peut donc pas se faire par surcharge
+   CSS : il faut définir de vrais objets de thème.
+2. **`tsc` refuse un import se terminant par `.ts`**, alors que `node --test` l'exige.
+   Résolu par `allowImportingTsExtensions` dans `tsconfig.json`.
+3. **`node --test` ne prend pas un dossier en argument** ici : il tente de le charger
+   comme un module. Le fichier de test est donc désigné explicitement dans le script npm.
+
+## Décision reportée à l'étape 8
+
+**Où vit le code des solutions d'exercice.** Les règles du projet interdisent d'écrire du
+code dans une page, mais une solution d'exercice n'est pas un extrait de concept et n'a
+pas sa place dans `extraits/manipulation/<concept>/` à côté de `attendu.csv`. En
+attendant, la page de `filtrer_lignes` donne le résultat à obtenir, 9 lignes et une masse
+moyenne de 3622,2 grammes, et non le code. L'élève doit écrire la solution lui-même, ce
+qui est défendable pédagogiquement, mais la question devra être tranchée avec le
+composant `Exercice`.
+
+## Décisions prises à l'étape 6
+
+| Sujet | Décision |
+|---|---|
+| Dépôt distant | `maxime2476/atlas-donnees`, **public**. Créé le 26 septembre 2026. |
+| Conditionnement | `verification_extraits.yml` est appelable (`workflow_call`) et `deploiement.yml` l'invoque avec `needs`. Un `workflow_run` séparé aurait perdu le contexte des pull requests. |
+| Contenu déployé | L'état courant, avec l'effet cathodique statique. L'effet animé et son bouton arrivent à l'étape 8. |
+| Version de R en CI | 4.5.2, épinglée pour correspondre au poste de travail, alors que R 4.6.1 est publié. |
+
+## Versions des actions, relevées le 26 septembre 2026
+
+| Action | Version |
+|---|---|
+| `actions/checkout` | v7.0.1 |
+| `actions/setup-node` | v7.0.0 |
+| `actions/configure-pages` | v6.0.0 |
+| `actions/upload-pages-artifact` | v5.0.0 |
+| `actions/deploy-pages` | v5.0.1 |
+| `astral-sh/setup-uv` | v10.2.0 |
+| `r-lib/actions/setup-r` | v2 |
+
+## Réglages GitHub à faire à la main
+
+Ces deux réglages ne se font pas en ligne de commande.
+
+1. **Settings → Pages → Source** : choisir « GitHub Actions ». Sans cela, l'étape
+   `configure-pages` échoue et rien n'est publié.
+2. **Settings → Rules** : protéger `main`, en exigeant une pull request et la réussite des
+   vérifications avant fusion. À faire avant l'ouverture aux élèves, à l'étape 10.
+
+## Reste à faire avant l'étape 7
 
 - **À ne pas perdre de vue** : l'effet cathodique n'est que statique. Le scintillement
   animé et son bouton de désactivation relèvent de l'étape 8, et la direction

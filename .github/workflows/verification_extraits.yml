@@ -1,0 +1,113 @@
+# Verifie que chaque extrait produit bien la sortie de reference attendue.
+#
+# Ce workflow est appelable par le deploiement (workflow_call), afin que le site ne
+# soit jamais mis en ligne avec un extrait faux, sans avoir a dupliquer ces jobs.
+
+name: Verification des extraits
+
+on:
+  pull_request:
+    paths:
+      - 'extraits/**'
+      - 'donnees/**'
+      - 'outils/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/verification_extraits.yml'
+  workflow_call:
+
+# Lecture seule : ce workflow ne modifie rien.
+permissions:
+  contents: read
+
+jobs:
+  qualite:
+    name: Qualite du code Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v7
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: Installer l'environnement Python
+        run: uv sync --locked
+
+      - name: Verifier le style
+        run: uv run ruff check outils extraits
+
+      - name: Verifier le formatage
+        run: uv run ruff format --check outils extraits
+
+      - name: Tester les outils de verification
+        run: uv run pytest outils
+
+  python:
+    name: Extraits Python
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v7
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: Installer l'environnement Python
+        run: uv sync --locked
+
+      - name: Executer et comparer les extraits Python
+        run: uv run python outils/verifier_extraits.py --langages python
+
+  sql:
+    name: Extraits SQL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v7
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      # DuckDB est une dependance Python du projet : aucun serveur a installer.
+      - name: Installer l'environnement Python
+        run: uv sync --locked
+
+      - name: Executer et comparer les extraits SQL
+        run: uv run python outils/verifier_extraits.py --langages sql
+
+  r:
+    name: Extraits R
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v7
+
+      # Le verificateur est un script Python, meme pour les extraits R.
+      - name: Installer uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: Installer l'environnement Python
+        run: uv sync --locked
+
+      - name: Installer R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5.2'
+          use-public-rspm: true
+
+      # use-public-rspm sert des paquets deja compiles : l'installation prend environ
+      # une minute au lieu de vingt. Le cache viendra avec renv, a l'etape 7.
+      - name: Installer readr et dplyr
+        run: Rscript -e 'install.packages(c("readr", "dplyr"))'
+
+      - name: Executer et comparer les extraits R
+        run: uv run python outils/verifier_extraits.py --langages r

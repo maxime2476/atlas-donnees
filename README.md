@@ -1,5 +1,7 @@
 # Atlas des données
 
+**https://maxime2476.github.io/atlas-donnees/**
+
 Ouvrage de référence sur les opérations d'analyse de données, présentées côte à côte
 dans plusieurs langages.
 
@@ -79,9 +81,22 @@ Les polices sont versionnées dans le dépôt. Pour les régénérer :
 python3 outils/telecharger_polices.py
 ```
 
+## Intégration continue
+
+Deux workflows tournent sur GitHub Actions.
+
+`verification_extraits.yml` exécute les extraits et compare leurs sorties, avec un job
+par langage. Il se déclenche sur les pull requests qui touchent `extraits/`, `donnees/`
+ou `outils/`.
+
+`deploiement.yml` construit le site et le met en ligne à chaque envoi sur `main`. Il
+appelle d'abord le workflow de vérification : **le site n'est jamais publié si un extrait
+ne produit pas la sortie attendue.**
+
 ## Contribuer
 
-Les modalités de contribution seront décrites dans `CONTRIBUTING.md`.
+Voir `CONTRIBUTING.md` : le contrat d'un extrait, l'ajout d'un concept pas à pas, et les
+commandes de vérification à lancer en local.
 
 ## Licences
 

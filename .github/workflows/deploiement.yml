@@ -1,0 +1,79 @@
+# Construit le site et le met en ligne sur GitHub Pages.
+#
+# La verification des extraits est appelee en prealable : rien n'est publie tant que
+# les trois langages ne produisent pas la sortie de reference.
+
+name: Deploiement
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul deploiement a la fois. On ne l'annule pas en cours de route : une mise en
+# ligne interrompue laisserait le site dans un etat indetermine.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verification:
+    name: Verification des extraits
+    uses: ./.github/workflows/verification_extraits.yml
+
+  construction:
+    name: Construction du site
+    needs: verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v7
+
+      - name: Installer Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Installer les dependances
+        run: npm ci
+        working-directory: site
+
+      - name: Tester le plugin d'injection des extraits
+        run: npm run test
+        working-directory: site
+
+      - name: Verifier les types
+        run: npm run typecheck
+        working-directory: site
+
+      # onBrokenLinks est regle sur throw : un lien mort fait echouer cette etape.
+      - name: Construire le site
+        run: npm run build
+        working-directory: site
+
+      - name: Preparer GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Envoyer le site construit
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/build
+
+  deploiement:
+    name: Mise en ligne
+    needs: construction
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.mise_en_ligne.outputs.page_url }}
+    steps:
+      - name: Publier sur GitHub Pages
+        id: mise_en_ligne
+        uses: actions/deploy-pages@v5

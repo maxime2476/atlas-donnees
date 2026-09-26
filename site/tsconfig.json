@@ -4,6 +4,9 @@
 {
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
+    // Les tests du plugin remark sont executes par node --test, qui exige
+    // l'extension .ts dans les imports. tsc la refuse sans cette option.
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "strict": true

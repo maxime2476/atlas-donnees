@@ -1,0 +1,136 @@
+---
+id: filtrer_lignes
+title: Filtrer des lignes
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Filtrer des lignes
+
+Ne conserver que les lignes qui satisfont une condition.
+
+## À quoi ça sert
+
+Un tableau de mesures contient rarement la population qu'on veut étudier. Il contient
+tout ce qui a été relevé. Avant de comparer deux groupes, de calculer une moyenne ou
+d'entraîner un modèle, il faut donc restreindre le tableau au sous-ensemble pertinent.
+
+C'est le geste le plus fréquent de toute la chaîne de traitement. Une condition mal
+écrite fausse silencieusement tout ce qui vient après, sans qu'aucune erreur ne
+signale le problème.
+
+Le jeu de données contient 344 manchots mesurés à la station Palmer, en Antarctique,
+sur trois îles. Nous voulons travailler sur les manchots de l'île Dream, qui en compte
+124, et parmi eux seulement ceux dont la masse dépasse 4000 grammes.
+
+## Ce qu'il faut savoir
+
+Avoir lu un fichier CSV dans un tableau, et savoir qu'une colonne se désigne par son
+nom. Rien d'autre.
+
+## Le code
+
+<Tabs groupId="langage" queryString>
+<TabItem value="python" label="Python" default>
+
+```python fichier="extraits/manipulation/filtrer_lignes/python.py"
+```
+
+Chaque condition est écrite dans une variable nommée, puis les deux sont combinées avec
+`&`. On pourrait tout écrire sur une ligne, mais les parenthèses deviennent alors
+difficiles à suivre, et c'est une source d'erreurs classique.
+
+</TabItem>
+<TabItem value="sql" label="SQL">
+
+```sql fichier="extraits/manipulation/filtrer_lignes/sql.sql"
+```
+
+DuckDB lit le fichier CSV directement, sans qu'il faille créer une table au préalable.
+`WHERE` filtre les lignes, `ORDER BY` fixe leur ordre.
+
+</TabItem>
+<TabItem value="r" label="R">
+
+```r fichier="extraits/manipulation/filtrer_lignes/r.R"
+```
+
+`filter()` accepte plusieurs conditions séparées par des virgules, qui sont combinées
+comme un « et ». Le tube `|>` passe le tableau d'une opération à la suivante.
+
+</TabItem>
+</Tabs>
+
+## Ce que ça produit
+
+Les trois versions écrivent exactement le même résultat, à savoir 28 lignes. Ce fichier
+est la référence contre laquelle chaque version est comparée à chaque modification du
+site.
+
+```csv fichier="extraits/manipulation/filtrer_lignes/attendu.csv" entier
+```
+
+## Les pièges
+
+**Une valeur manquante ne satisfait aucune condition.** C'est le piège principal, et il
+est silencieux. Comparer une valeur manquante à 4000 donne un résultat indéterminé, que
+les trois langages traitent en écartant la ligne. Une ligne dont la masse
+n'a pas été relevée disparaît donc du résultat, sans avertissement, comme si l'animal
+était trop léger.
+
+Dans ce jeu de données, deux manchots n'ont aucune mesure. Ils sont sur les îles Biscoe
+et Torgersen, donc hors de notre filtre, et le résultat n'est pas affecté ici. Sur un
+fichier réel, vérifiez toujours combien de lignes le filtre écarte pour cause de valeur
+manquante, et non parce que la condition est fausse.
+
+**En Python, `and` n'est pas `&`.** Sur deux colonnes, `and` lève une erreur, parce
+qu'il attend deux valeurs et reçoit deux séries. Le bon opérateur est `&`, et chaque
+condition doit être entourée de parenthèses si elles sont écrites sur une seule ligne.
+
+**En SQL, `=` compare, il n'affecte rien.** Et la comparaison de chaînes est sensible à
+la casse : `'dream'` ne trouve rien, là où `'Dream'` trouve 124 lignes.
+
+**L'ordre des lignes n'est jamais garanti sans tri explicite.** Ni SQL ni pandas ne
+promettent de conserver l'ordre du fichier d'origine. Deux exécutions peuvent renvoyer
+les mêmes lignes dans un ordre différent, ce qui suffit à faire échouer une comparaison.
+C'est pourquoi les trois versions trient sur toutes les colonnes affichées.
+
+## Ce que ça coûte
+
+Filtrer produit une copie. En Python comme en R, le tableau filtré occupe sa propre
+mémoire, et enchaîner cinq filtres sur un tableau volumineux crée cinq copies. Sur un
+fichier de quelques milliers de lignes, cela n'a aucune importance. Sur plusieurs
+millions, cela devient la première cause de saturation mémoire.
+
+SQL a l'avantage ici. Le moteur lit le fichier et n'en garde que ce qui passe la
+condition, sans jamais matérialiser l'intégralité du tableau. C'est la raison pour
+laquelle un filtre s'écrit de préférence au plus près de la source, et non après avoir
+chargé toutes les données.
+
+## Exercice
+
+Les manchots à jugulaire femelles, dont la nageoire dépasse 195 millimètres. Affichez
+leur espèce, leur sexe, la longueur de leur nageoire et leur masse.
+
+L'espèce s'écrit `Chinstrap` dans le fichier, et le sexe `female`.
+
+<details>
+<summary>Indice</summary>
+
+Trois conditions cette fois, combinées de la même manière que les deux de l'exemple. Le
+nom de l'espèce et celui du sexe sont des chaînes de caractères, donc entre guillemets.
+
+</details>
+
+<details>
+<summary>Ce que vous devez obtenir</summary>
+
+**9 lignes**, dont la masse moyenne est de **3622,2 grammes**.
+
+Si vous en obtenez davantage, vérifiez la casse de `Chinstrap` et de `female`. Si vous
+en obtenez moins, vérifiez que la comparaison porte bien sur la longueur de nageoire et
+non sur une autre mesure.
+
+</details>

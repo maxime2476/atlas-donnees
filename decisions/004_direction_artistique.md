@@ -173,6 +173,32 @@ pas être mis en ligne.
 L'effet ne s'applique jamais à l'intérieur d'un bloc de code, d'un tableau ou d'un champ
 de formulaire, c'est-à-dire partout où le lecteur doit déchiffrer des caractères exacts.
 
+## Coloration syntaxique
+
+Les thèmes sont définis en TypeScript, dans `site/src/coloration_syntaxique.ts`, et non
+en CSS. La raison est technique : `prism-react-renderer` applique ses couleurs en styles
+inline, qui l'emportent sur toute règle CSS.
+
+Les contrastes sont calculés contre le **fond des blocs de code**, `#161614` en sombre et
+`#FBF9F2` en clair, et non contre le fond de page. C'est là que ces couleurs apparaissent.
+
+| Rôle | Sombre | Contraste | Clair | Contraste |
+|---|---|---|---|---|
+| Texte de base | `#D8D8D0` | 12,64:1 AAA | `#1A1A16` | 16,57:1 AAA |
+| Commentaire | `#8A8A82` | 5,21:1 AA | `#6B6959` | 5,26:1 AA |
+| Mot-clé | `#00E05A` | 10,19:1 AAA | `#0A5629` | 8,39:1 AAA |
+| Chaîne | `#FFB000` | 9,89:1 AAA | `#7A4200` | 7,65:1 AAA |
+| Nombre | `#5FD7D7` | 10,52:1 AAA | `#0B5A60` | 7,53:1 AAA |
+| Fonction | `#F0F0E8` | 15,82:1 AAA | `#1A1A16` | 16,57:1 AAA |
+| Opérateur | `#A5A59C` | 7,30:1 AAA | `#514F46` | 7,80:1 AAA |
+
+Les commentaires restent en AA plutôt qu'en AAA, volontairement : un commentaire doit
+s'effacer devant le code. Tout le reste atteint AAA.
+
+Une couleur a été ajoutée aux deux palettes pour ce seul usage, le cyan pâle et le bleu
+canard des nombres. Une coloration a besoin de distinguer au moins mot-clé, chaîne,
+commentaire et nombre, ce que deux couleurs d'accent ne permettaient pas.
+
 ## Conséquences
 
 - Les polices sont versionnées dans le dépôt. Silkscreen pèse peu, les deux variantes
