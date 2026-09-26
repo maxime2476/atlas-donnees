@@ -1,0 +1,27 @@
+[project]
+name = "atlas-donnees"
+version = "0.1.0"
+description = "Outillage d'execution et de verification des extraits de code du site Atlas des donnees"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.1",
+    "pandas>=2.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+]
+
+[tool.ruff]
+line-length = 95
+target-version = "py312"
+
+[tool.ruff.lint]
+# Regles volontairement modestes : le code doit rester lisible par un eleve.
+select = ["E", "F", "W", "I", "N", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["outils"]
+python_files = ["test_*.py"]

@@ -1,0 +1,54 @@
+/* Espacements pris sur la grille de 8 pixels imposee par la direction artistique. */
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--atlas-pas-6) var(--atlas-pas-3);
+}
+
+.accroche {
+  max-width: 640px;
+  margin-bottom: var(--atlas-pas-6);
+  color: var(--atlas-texte-attenue);
+}
+
+.tableau {
+  width: 100%;
+  margin-bottom: var(--atlas-pas-6);
+}
+
+.legende {
+  font-size: 14px;
+  line-height: 24px;
+  text-align: left;
+  color: var(--atlas-texte-attenue);
+  padding-bottom: var(--atlas-pas-2);
+}
+
+.nomConcept {
+  font-family: var(--atlas-police-corps);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: none;
+  text-align: left;
+}
+
+.jeu {
+  color: var(--atlas-texte-attenue);
+}
+
+.case {
+  font-family: var(--atlas-police-code);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Texte reserve aux lecteurs d'ecran : present dans le DOM, invisible a l'oeil. */
+.lectureEcran {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

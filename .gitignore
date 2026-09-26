@@ -1,0 +1,43 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Docusaurus
+site/build/
+site/.docusaurus/
+site/.cache-loader/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Julia
+Manifest.toml
+
+# Scala
+.bloop/
+.metals/
+.scala-build/
+
+# Systeme
+.DS_Store
+Thumbs.db
+desktop.ini
+*:Zone.Identifier
+
+# Editeurs
+.vscode/
+.idea/
+*.swp

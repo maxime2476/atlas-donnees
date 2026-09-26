@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" shape-rendering="crispEdges" role="img" aria-label="Atlas des donnees">
+  <rect x="1" y="2" width="14" height="1" fill="#1A1A16"/>
+  <rect x="1" y="13" width="14" height="1" fill="#1A1A16"/>
+  <rect x="1" y="2" width="1" height="12" fill="#1A1A16"/>
+  <rect x="14" y="2" width="1" height="12" fill="#1A1A16"/>
+  <rect x="2" y="3" width="12" height="2" fill="#0A5629"/>
+  <rect x="2" y="8" width="12" height="1" fill="#1A1A16"/>
+  <rect x="6" y="5" width="1" height="8" fill="#1A1A16"/>
+  <rect x="10" y="5" width="1" height="8" fill="#1A1A16"/>
+</svg>
